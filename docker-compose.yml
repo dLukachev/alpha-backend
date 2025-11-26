@@ -1,0 +1,60 @@
+# version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping", "-q" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - app-network
+
+  backend:
+    build: .
+    container_name: backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - QUEUE_NAME=finance_tasks
+      - HOST=redis-18796.c278.us-east-1-4.ec2.cloud.redislabs.com
+      - PORT=18796
+      - DECODE=True
+      - USERNAME=default
+      - PASSWORD=JY6rlQ7tyW0PGbP58RrhaB8NczlaFfxJ
+    networks:
+      - app-network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  worker:
+    build: .
+    container_name: worker
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
+      - QUEUE_NAME=finance_tasks
+      - HOST=redis-18796.c278.us-east-1-4.ec2.cloud.redislabs.com
+      - PORT=18796
+      - DECODE=True
+      - USERNAME=default
+      - PASSWORD=JY6rlQ7tyW0PGbP58RrhaB8NczlaFfxJ
+    networks:
+      - app-network
+    command: python workers/worker.py
+
+networks:
+  app-network:
+    driver: bridge

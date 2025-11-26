@@ -1,0 +1,24 @@
+# Test your FastAPI endpoints
+
+GET http://0.0.0.0:8000
+Accept: application/json
+
+###
+
+POST http://0.0.0.0:8000/finance
+Accept: application/json
+
+{
+  "data": {"user_name": "Vitaliy", "unique": 123321}
+}
+###
+
+GET http://0.0.0.0:8000/redis_health
+Accept: application/json
+
+###
+
+GET http://0.0.0.0:8000/task/367cc915-45c1-4495-b6d9-0a3c8397ee70
+Accept: application/json
+
+###

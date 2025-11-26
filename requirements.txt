@@ -1,0 +1,8 @@
+aiosqlite
+fastapi
+greenlet
+pika
+python-dotenv
+redis
+SQLAlchemy
+uvicorn
