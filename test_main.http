@@ -9,7 +9,7 @@ POST http://0.0.0.0:8000/finance
 Accept: application/json
 
 {
-  "data": {"user_name": "Vitaliy", "unique": 123321}
+  "data": {"user_name": "Vitaliy", "unique": {"fa":"da"}}
 }
 ###
 

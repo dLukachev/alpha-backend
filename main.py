@@ -11,6 +11,8 @@ from infra.rabbitmq_infra import publish_task_one_shot
 from database.models import async_session
 from database.repo import ResultRepository
 
+import json
+
 app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"])
@@ -23,6 +25,7 @@ async def health():
 
 @app.post("/finance")
 async def enqueue_financial_model(payload: PayloadModel):
+    print(payload.data)
     if not payload or not payload.data:
         raise HTTPException(status_code=400, detail="Dict not found")
 
@@ -38,7 +41,7 @@ async def enqueue_financial_model(payload: PayloadModel):
         function_path="utils.simple_finance_model:finance_model",
         data=payload.data,
     )
-    return Response(f"task_id: {task_id}", 200)
+    return Response(json.dumps({"task_id": task_id}), 200)
 
 
 @app.get("/redis_health")
