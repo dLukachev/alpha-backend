@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -11,17 +12,13 @@ from infra.rabbitmq_infra import publish_task_one_shot
 from database.models import async_session
 from database.repo import ResultRepository
 
-import json
-
 app = FastAPI()
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"])
 
-
 @app.get("/")
 async def health():
     return Response("Status: ok", 200)
-
 
 @app.post("/finance")
 async def enqueue_financial_model(payload: PayloadModel):
@@ -36,13 +33,20 @@ async def enqueue_financial_model(payload: PayloadModel):
     if data_in_db:
         return Response(f"{data_in_db.result}", 200)
 
-    # кладем задачу в очередь
     task_id = publish_task_one_shot(
         function_path="utils.simple_finance_model:finance_model",
         data=payload.data,
     )
     return Response(json.dumps({"task_id": task_id}), 200)
 
+
+@app.get("/task/{task_id}")
+async def get_task_result(task_id: str):
+    redis = get_redis_async()
+    result = await redis.get(task_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return Response(result, 200)
 
 @app.get("/redis_health")
 async def redis_health():
@@ -53,12 +57,3 @@ async def redis_health():
         return Response("ok", 200)
     else:
         return Response("not ok", 400)
-
-
-@app.get("/task/{task_id}")
-async def get_task_result(task_id: str):
-    redis = get_redis_async()
-    result = await redis.get(task_id)
-    if result is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return Response(result, 200)

@@ -56,6 +56,24 @@ async def finance_model(needed_data: dict) -> None:
         needed_data.pop("task_id")
         repo = ResultRepository(session)
         res = await repo.create(
-            data=f"{needed_data}", result="result", time_create=datetime.datetime.now()
+            data=f"{needed_data}",
+            result="""{
+                "status": "done",
+                "result": {
+                    "score": 0.73,
+                    "decision": "approve",
+                    "probability_default": 0.15,
+                    "monthly_payment": 12500,
+                    "approved_amount": 450000,
+                    "revenue_series": [100000, 120000, 140000, 160000, 180000],
+                    "recommendations": [
+                        "Сумма запроса находится в приемлемом диапазоне.",
+                        "Примерный ежемесячный платёж — 12,500 ₽; проверить платёжеспособность.",
+                        "Низкая вероятность дефолта — можно рассмотреть выдачу при нормальной истории.",
+                        "Решение модели: одобрено — подготовить документы для выдачи.",
+                    ],
+                },
+            }""",
+            time_create=datetime.datetime.now(),
         )
         print(res.id, res.data, res.result, res.time_create)
