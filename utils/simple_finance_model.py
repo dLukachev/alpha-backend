@@ -20,21 +20,7 @@ async def finance_model(needed_data: dict) -> None:
             needed_data.get("task_id"),
             json.dumps(
                 {
-                    "status": "done",
-                    "result": {
-                        "score": 0.73,
-                        "decision": "approve",
-                        "probability_default": 0.15,
-                        "monthly_payment": 12500,
-                        "approved_amount": 450000,
-                        "revenue_series": [100000, 120000, 140000, 160000, 180000],
-                        "recommendations": [
-                            "Сумма запроса находится в приемлемом диапазоне.",
-                            "Примерный ежемесячный платёж — 12,500 ₽; проверить платёжеспособность.",
-                            "Низкая вероятность дефолта — можно рассмотреть выдачу при нормальной истории.",
-                            "Решение модели: одобрено — подготовить документы для выдачи.",
-                        ],
-                    },
+                    "status": "failed",
                 }
             ),
             3600,
